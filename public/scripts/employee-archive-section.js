@@ -1,4 +1,5 @@
 let archivedEmployees = [];
+let archivedEmployees2 = [];
 let archivedMembers = [];
 let currentPageForEmployee = 1;
 let currentPageForAdminArchive = 1;
@@ -13,6 +14,9 @@ const tableBodyAdmin = document.getElementById("archived-admin-table");
 const prevAdminArchiveBtn = document.querySelector(".prev-page-archive-admin");
 const nextAdminArchiveBtn = document.querySelector(".next-page-archive-admin");
 
+const searchArchivedEmployeeBar = document.getElementById(
+  "search-archived-employees"
+);
 
   async function fetchArchivedEmployees() {
     try {
@@ -27,6 +31,8 @@ const nextAdminArchiveBtn = document.querySelector(".next-page-archive-admin");
       const { employeesList } = await response.json();
   
       archivedEmployees = employeesList;
+      archivedEmployees2 = employeesList;
+
   
       console.log("Fetched Archived Employees:", archivedEmployees);
   
@@ -115,6 +121,45 @@ const nextAdminArchiveBtn = document.querySelector(".next-page-archive-admin");
     ).textContent = totalResults;
   }
 
+  searchArchivedEmployeeBar.addEventListener("change", (e) => {
+    e.preventDefault();
+    currentPageForEmployee = 1;
+  
+    console.log("ARCHIVED EMPS:", archivedEmployees);
+  
+    if (searchArchivedEmployeeBar.value == "") {
+      archivedEmployees = archivedEmployees2;
+    } else {
+      const searchValue = searchArchivedEmployeeBar.value
+        .toLowerCase()
+        .replace(/-/g, "")
+        .trim();
+  
+      archivedEmployees = archivedEmployees2.filter((employee) => {
+        const empNum = employee.employee_number
+          .toString()
+          .toLowerCase()
+          .replace(/-/g, "");
+  
+        const email = employee.email.toLowerCase();
+        const name = `${employee.first_name} ${employee.middle_name || ""} ${
+          employee.last_name
+        }`
+          .trim()
+          .toLowerCase();
+  
+        return (
+          empNum.includes(searchValue) ||
+          email.includes(searchValue) ||
+          name.includes(searchValue)
+        );
+      });
+    }
+  
+    displayArchivedEmployees(currentPageForActive);
+    setupPaginationEmployees();
+  });
+
   async function displayArchivedEmployees(pageNumber) {
     const startIndex = (pageNumber - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -195,6 +240,10 @@ const nextAdminArchiveBtn = document.querySelector(".next-page-archive-admin");
             archivedEmployees = archivedEmployees.filter(
             (employee) => employee.employee_id !== employee_id
             );
+            archivedEmployees2 = archivedEmployees2.filter(
+            (employee) => employee.employee_id !== employee_id
+            );
+
     
             // Update the display and pagination
             displayArchivedEmployees(currentPageForEmployee); // Use the current page or update as necessary

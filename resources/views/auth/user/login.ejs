@@ -285,7 +285,7 @@
             } else {
               if (response.status === 401) {
                 const result = await response.json();
-                displayError(result.message || "Invalid email or password.");
+                displayError(result.message);
                 loginBtn.textContent = "Login";
               } else {
                 throw new Error("Unexpected server response.");

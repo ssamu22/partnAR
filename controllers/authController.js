@@ -31,13 +31,18 @@ exports.login = async (req, res) => {
     const employee = await Employee.findByEmail(email); // Fetch employee from DB
 
     // Check if employee does not exist or password is incorrect
-    if (!employee || !(await employee.validatePassword(password))) {
-      return res.status(401).json({ message: "Invalid email or password" });
+    if (!employee) {
+      return res.status(401).json({ message: "Email does not exist" });
     }
 
     // Check if employee is inactive
     if (!employee.isActive || !employee.isApproved) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Email is not active" });
+    }
+
+    // Check if password is correct
+    if (!(await employee.validatePassword(password))) {
+      return res.status(401).json({ message: "Password is incorrect" });
     }
 
     // Step 3: Store employee data in session (excluding private info)
